@@ -1,17 +1,14 @@
 <!doctype html>
 <style>
-  /* --- STREAM CHAT STYLE --- */
-
 body {
   font-family: "Inter", Arial, sans-serif;
-  background: #2c2c2f; /* Twitch dark */
+  background: #2c2c2f; 
   margin: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Chat Container */
 #messages {
   flex: 1;
   overflow-y: auto;
@@ -24,7 +21,6 @@ body {
   border-bottom: 1px solid #2a2a2d;
 }
 
-/* Individual Chat Message */
 #messages > div {
   background: #1f1f23;
   padding: 10px 14px;
@@ -37,14 +33,12 @@ body {
   animation: fadeIn 0.2s ease-out;
 }
 
-/* Username text (we'll inject <strong>) */
 .username {
   font-weight: 600;
   margin-right: 6px;
-  color: #ff84cc; /* Twitch purple */
+  color: #ff84cc; 
 }
 
-/* Chat Input Area */
 form[name="publish"] {
   display: flex;
   gap: 10px;
@@ -73,7 +67,6 @@ input[type="text"]:focus, #username:focus {
   box-shadow: 0 0 4px rgba(145,71,255,0.5);
 }
 
-/* SEND BUTTON — Twitch Style */
 input[type="submit"] {
   padding: 12px 20px;
   background: #ff6ec3;
@@ -92,7 +85,7 @@ input[type="submit"]:hover {
   transform: translateY(-2px);
 }
 
-/* Animation */
+/* add animation */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -109,11 +102,7 @@ input[type="submit"]:hover {
 <div id="messages"></div>
 
 <script>
-let url = location.host == 'localhost'
-  ? 'ws://localhost:8080/ws'
-  : location.host == 'javascript.local'
-    ? `ws://javascript.local/article/websocket/chat/ws`
-    : `wss://javascript.info/article/websocket/chat/ws`;
+let url = 'ws://localhost:8080/ws';
 
 let socket = new WebSocket(url);
 
@@ -122,11 +111,11 @@ document.forms.publish.onsubmit = function () {
   let username = document.getElementById("username").value.trim();
   let message = this.message.value.trim();
 
-  if (!username) {
+  if (!username) { // if user submits message without a username, alert error 
     alert("Please enter a username.");
     return false;
   }
-  if (!message) return false; // empty message = ignore
+  if (!message) return false; 
 
   const outgoing = {
     username: username,
@@ -135,7 +124,7 @@ document.forms.publish.onsubmit = function () {
 
   socket.send(JSON.stringify(outgoing));
 
-  this.message.value = ""; // clear message box
+  this.message.value = ""; 
   return false;
 };
 
