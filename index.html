@@ -1,4 +1,49 @@
 <!doctype html>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+  }
+
+  form[name="publish"] {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #cfd3d8;
+    background: #fff;
+    outline: none;
+    transition: 0.2s;
+  }
+  input[type="submit"] {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #5a8dee, #3c6fd9);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(90, 141, 238, 0.3);
+  transition: 0.25s ease;
+}
+
+input[type="submit"]:hover {
+  background: linear-gradient(135deg, #507edc, #335ec3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(90, 141, 238, 0.35);
+}
+
+</style>
+
 <form name="publish">
   <input type="text" name="message" maxlength="50"/>
   <input type="submit" value="Send"/>
@@ -23,6 +68,7 @@ document.forms.publish.onsubmit = function() {
 };
 
 // handle incoming messages
+socket.binaryType = "arraybuffer";
 socket.onmessage = function(event) {
   let incomingMessage = event.data;
   showMessage(incomingMessage);
