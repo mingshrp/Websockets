@@ -8,22 +8,22 @@ Then:
 
 const http = require('http');
 const fs = require('fs');
-const ws = new require('ws');
+const ws = require('ws');
 
-const wss = new ws.Server({noServer: true});
-
+const wss = new ws.Server({ noServer: true });
 const clients = new Set();
 
 function accept(req, res) {
-
-  if (req.url == '/ws' && req.headers.upgrade &&
-      req.headers.upgrade.toLowerCase() == 'websocket' &&
-      // can be Connection: keep-alive, Upgrade
-      req.headers.connection.match(/\bupgrade\b/i)) {
+  if (
+    req.url == '/ws' &&
+    req.headers.upgrade &&
+    req.headers.upgrade.toLowerCase() == 'websocket' &&
+    req.headers.connection.match(/\bupgrade\b/i)
+  ) {
     wss.handleUpgrade(req, req.socket, Buffer.alloc(0), onSocketConnect);
-  } else if (req.url == '/') { // index.html
+  } else if (req.url == '/') {
     fs.createReadStream('./index.html').pipe(res);
-  } else { // page not found
+  } else {
     res.writeHead(404);
     res.end();
   }
@@ -31,31 +31,35 @@ function accept(req, res) {
 
 function onSocketConnect(ws) {
   clients.add(ws);
-  log(`new connection`);
+  console.log(`New connection`);
 
-  ws.on('message', function(message) {
-    log(`message received: ${message}`);
+  ws.on('message', function (rawMessage) {
+    console.log(`Raw received: ${rawMessage}`);
 
-    message = message.slice(0, 50); // max message length will be 50
+    let data;
+    try {
+      data = JSON.parse(rawMessage);
+    } catch (e) {
+      console.log("Invalid JSON from client");
+      return;
+    }
 
-    for(let client of clients) {
-      client.send(message);
+    // Sanitize
+    const username = String(data.username || "Anonymous").slice(0, 20);
+    const message = String(data.message || "").slice(0, 50);
+
+    const fullMessage = JSON.stringify({ username, message });
+
+    for (let client of clients) {
+      client.send(fullMessage);
     }
   });
 
-  ws.on('close', function() {
-    log(`connection closed`);
+  ws.on('close', function () {
+    console.log(`Connection closed`);
     clients.delete(ws);
   });
 }
 
-let log;
-if (!module.parent) {
-  log = console.log;
-  http.createServer(accept).listen(8080);
-} else {
-  // to embed into javascript.info
-  log = function() {};
-  // log = console.log;
-  exports.accept = accept;
-}
+http.createServer(accept).listen(8080);
+console.log("Server running at http://localhost:8080");
